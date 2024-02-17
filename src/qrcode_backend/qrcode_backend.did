@@ -1,3 +1,21 @@
-service : {
-    "greet": (text) -> (text) query;
+type Options = record {
+    add_logo: bool;
+    add_gradient: bool;
+    add_transparency: opt bool;
+
+}
+
+type QrError = record {
+    mesaage: Text;
+
+}
+
+type QrResult = variant {
+    Image: blob;
+    Err: QrError;
+}
+
+service : { 
+    "qrcode_query": (input: Text:, options: Options) -> (QrResult) query;
+    "qrcode": (input: Text, options: Options) -> (QrResult);
 }
