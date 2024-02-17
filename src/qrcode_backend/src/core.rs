@@ -4,6 +4,8 @@ use std::io::Cursor;
 
 use crate::Options;
 
+use regex::Regex;
+
 /// Belirtilen giriş metni için PNG biçiminde bir QR kodu görüntüsü oluşturur.
 /// İstenen görüntü boyutu pikseller cinsinden belirtilmelidir.
 pub(super) fn generate(
@@ -12,7 +14,16 @@ pub(super) fn generate(
     logo: &[u8],
     image_size: usize,
 ) -> Result<Vec<u8>, anyhow::Error> {
-    // 25% hata toleransı olan bir QR kodu görüntüsü oluşturun.
+    
+    // LinkedIn linki için regex pattern
+    let re = Regex::new(r#"(https?://)?(www\.)?linkedin\.com/in/[\w-]+"#).unwrap();
+
+    // linkedIn linkini kontrol eden karar yapısı
+    if !re.is_match(&input) {
+        return Err(anyhow::anyhow!("Invalid LinkedIn profile link provided"));
+    }
+
+    // QR kodu görüntüsü oluştur
     let mut qr = image::DynamicImage::ImageLuma8(qrcode_generator::to_image_buffer(
         input,
         QrCodeEcc::Quartile,
